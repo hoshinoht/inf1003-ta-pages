@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e3a5f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>General Questions</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWF0aHMgVGVzdCAtIEdlbmVyYWwgUXVlc3Rpb25zIiwic2hvcnRfbmFtZSI6IkdlbmVyYWwgUXVlc3Rpb25zIiwiZGVzY3JpcHRpb24iOiJRdWl6IGFwcCBmb3IgR2VuZXJhbCBRdWVzdGlvbnMiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBhMTkyOSIsInRoZW1lX2NvbG9yIjoiIzFlM2E1ZiIsIm9yaWVudGF0aW9uIjoicG9ydHJhaXQiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9XCJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Z1wiIHZpZXdCb3g9XCIwIDAgNTEyIDUxMlwiPjxyZWN0IGZpbGw9XCIlMjMxZTNhNWZcIiB3aWR0aD1cIjUxMlwiIGhlaWdodD1cIjUxMlwiLz48dGV4dCB4PVwiNTAlXCIgeT1cIjUwJVwiIHRleHQtYW5jaG9yPVwibWlkZGxlXCIgZHk9XCIuM2VtXCIgZmlsbD1cIndoaXRlXCIgZm9udC1zaXplPVwiMjU2XCIgZm9udC1mYW1pbHk9XCJBcmlhbFwiPlE8L3RleHQ+PC9zdmc+Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #0a1929 0%, #1a3a52 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Aquarium Theme Effects */
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 1px;
+            height: 20px;
+            background: linear-gradient(transparent, rgba(100, 180, 255, 0.3));
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        .fish {
+            position: fixed;
+            font-size: 30px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.7;
+            animation: swim linear infinite;
+            transform: scaleX(-1); /* Flip fish to face right */
+        }
+
+        @keyframes swim {
+            from { transform: translateX(-100px) scaleX(-1); }
+            to { transform: translateX(calc(100vw + 100px)) scaleX(-1); }
+        }
+
+        .bubble {
+            position: fixed;
+            bottom: -50px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: rise linear infinite;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        @keyframes rise {
+            to { transform: translateY(-100vh); bottom: 100vh; }
+        }
+
+        /* App Content */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .screen {
+            display: none !important;
+        }
+
+        .screen.active {
+            display: block !important;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Start Screen */
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+
+        .start-screen h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-screen .subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+
+        /* Quiz Screen */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .question-counter {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .option:active {
+            transform: scale(0.98);
+        }
+
+        .option.selected {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .option.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 18px;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .feedback-banner.correct {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+        }
+
+        .feedback-banner.incorrect {
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select {
+            background: rgba(30, 58, 95, 0.8);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 40px;
+        }
+
+        select:hover {
+            background: rgba(30, 58, 95, 0.9);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(30, 58, 95, 1);
+        }
+
+        select option {
+            background: #1a3a52;
+            color: white;
+            padding: 10px;
+        }
+
+        select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        input[type="checkbox"]:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        input[type="checkbox"]:checked {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-color: #3b82f6;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 20px 0;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]:disabled::-webkit-slider-thumb {
+            cursor: not-allowed;
+        }
+
+        .range-value {
+            text-align: center;
+            font-size: 24px;
+            color: #60a5fa;
+            margin: 10px 0;
+        }
+
+        .range-answer {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .range-answer.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+
+        .range-answer.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border: 3px solid rgba(59, 130, 246, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .score-percentage {
+            font-size: 48px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .checkbox-option.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+
+        .checkbox-option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+
+        .match-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .match-item {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .match-text {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .match-text.correct-match {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+
+        .match-text.incorrect-match {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+        }
+
+        .match-arrow {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        select:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .ordering-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ordering-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-number {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .ordering-item.correct-order {
+            background: rgba(34, 197, 94, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #22c55e;
+        }
+
+        .ordering-item.incorrect-order {
+            background: rgba(239, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <!-- Aquarium Effects -->
+    <div class="rain" id="rain"></div>
+    <div id="fish-container"></div>
+    <div id="bubble-container"></div>
+
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active start-screen">
+            <h1>General Questions</h1>
+            <p class="subtitle">25 Questions</p>
+            <div style="margin: 20px 0; text-align: center;">
+                <label style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; cursor: pointer;">
+                    <input type="checkbox" id="allow-retry" style="width: 20px; height: 20px; cursor: pointer;">
+                    <span>Allow retry on wrong answers</span>
+                </label>
+            </div>
+            <button class="btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <div class="question-counter" id="question-counter">Question 1 of 25</div>
+            </div>
+            <div id="question-container"></div>
+            <div class="btn-group">
+                <button class="btn" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen results-screen">
+            <h1>Quiz Complete!</h1>
+            <div class="score-circle">
+                <div class="score-percentage" id="score-percentage">0%</div>
+                <div class="score-label">Score</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #22c55e" id="correct-count">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #ef4444" id="incorrect-count">0</div>
+                    <div class="stat-label">Incorrect</div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn" onclick="showReview()">Review Answers</button>
+                <button class="btn" onclick="restartQuiz()">Try Again</button>
+            </div>
+        </div>
+
+        <!-- Review Screen -->
+        <div id="review-screen" class="screen">
+            <h1>Review Your Answers</h1>
+            <div id="review-container" style="margin: 20px 0;"></div>
+            <div class="btn-group">
+                <button class="btn" onclick="showScreen('results-screen')">Back to Results</button>
+                <button class="btn" onclick="restartQuiz()">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions Data
+        const QUESTIONS = [
+  {
+    "id": "741b93e6-905e-4ab1-9238-491c0225cd16",
+    "type": "multiple-choice",
+    "text": "A 5-digit code (digits 0–9), no repeats, cannot start with 0. How many codes?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "ec84a4ba-4453-46dd-b6b1-7bed965f7561",
+        "text": "10 × 9 × 8 × 7 × 6",
+        "isCorrect": false
+      },
+      {
+        "id": "e9caaa2c-9004-46c9-95d2-a6d23cb2e10e",
+        "text": "9 × 9 × 8 × 7 × 6",
+        "isCorrect": true
+      },
+      {
+        "id": "f5d377bb-51af-4156-81a7-03ed62d63d91",
+        "text": "9 × 9⁴",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "915041a5-e625-4693-b98b-69098d44ba9b",
+        "text": "10P5",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "36e2d465-64dd-4681-a321-f1e9f7cd6b51",
+    "type": "multiple-choice",
+    "text": "Evaluate (2024¹⁰ mod 5)",
+    "explanation": "2024 = -1 mod 5 → (-1)¹⁰ = 1",
+    "options": [
+      {
+        "id": "afd5579b-c25c-4424-8c11-41dab19a8e35",
+        "text": "0",
+        "isCorrect": false
+      },
+      {
+        "id": "3df01156-bfae-4348-8340-09ac3085660b",
+        "text": "1",
+        "isCorrect": true
+      },
+      {
+        "id": "796bdfef-a7a2-4b06-a3a3-a0d910fa459c",
+        "text": "2",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "86b1b197-4988-434c-986d-a87ed50e9196",
+        "text": "3",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "2457e46a-f264-475a-bbf5-175d36591e9f",
+        "text": "4",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "19fdda6d-8bc7-4259-81ed-09c5f073208f",
+        "text": "5",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "41190baa-5152-4bc1-92fc-7da9164f2357",
+    "type": "input",
+    "text": "999¹⁰⁰ mod 1000 = ______",
+    "explanation": "",
+    "correctAnswer": "1"
+  },
+  {
+    "id": "1664f72d-03fe-437e-ad9e-eff2c4ca27ac",
+    "type": "multiple-choice",
+    "text": "Which is the correct negation of \"Every student submitted the assignment\"?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "45fe278e-dce1-40b8-9b03-e7abcd9cea85",
+        "text": "Some students submitted late",
+        "isCorrect": false
+      },
+      {
+        "id": "6f03ef90-29ab-4295-99fc-39d1ab40b3e8",
+        "text": "No student submitted the assignment",
+        "isCorrect": false
+      },
+      {
+        "id": "5347be4f-2305-4bf6-9c88-7b04ea772169",
+        "text": "Some student did not submit the assignment",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "412182b7-558e-4748-99c6-0a19831bb11e",
+        "text": "All students did not submit",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "5f04358c-881b-437c-9be0-14ff724cd75e",
+    "type": "multiple-choice",
+    "text": "The statement “p → q” is logically equivalent to",
+    "explanation": "",
+    "options": [
+      {
+        "id": "32069659-00cd-419d-aafe-002c6c27dacf",
+        "text": "¬p ∧ q",
+        "isCorrect": false
+      },
+      {
+        "id": "08e5d528-fc50-4fa0-974a-93ec2e67cf0e",
+        "text": "¬p ∨ q",
+        "isCorrect": true
+      },
+      {
+        "id": "93534271-9f0d-4c9d-ad2d-f537259abe01",
+        "text": "p ∧ ¬q",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "d83b4c29-793a-41af-956a-a4dd8b1132c6",
+        "text": "p ↔ q",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "b4f27bc5-65c8-4324-a461-b6a1fe42b7c0",
+    "type": "input",
+    "text": "If |A|=6, |B|=10, |A∩B|=3, then |A∪B| equals",
+    "explanation": "Draw out the venn diagram!",
+    "correctAnswer": "13"
+  },
+  {
+    "id": "18c1e0bd-1c2c-4c5b-a6c7-8eded4b0e628",
+    "type": "multiple-choice",
+    "text": "For a relation R on a set, symmetry means:",
+    "explanation": "",
+    "options": [
+      {
+        "id": "3e7e2bd8-0835-430c-be46-a8213c44e4be",
+        "text": "aRb →  bRa",
+        "isCorrect": true
+      },
+      {
+        "id": "476b7e54-0bb1-4493-bb56-cb4c0ced4d55",
+        "text": "aRb and bRc → aRc",
+        "isCorrect": false
+      },
+      {
+        "id": "2f61647b-74ec-41f0-9a51-7590622e5b7a",
+        "text": "aRa for all a",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "9671a315-f68a-4966-89fa-7dd982ddbcdc",
+        "text": "None of the above",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "603b763a-f383-47c9-8a48-a2d5f109fecf",
+    "type": "multiple-choice",
+    "text": "For a relation R on a set, transitivity means:",
+    "explanation": "",
+    "options": [
+      {
+        "id": "3e7e2bd8-0835-430c-be46-a8213c44e4be",
+        "text": "aRb →  bRa",
+        "isCorrect": false
+      },
+      {
+        "id": "476b7e54-0bb1-4493-bb56-cb4c0ced4d55",
+        "text": "aRb and bRc → aRc",
+        "isCorrect": true
+      },
+      {
+        "id": "2f61647b-74ec-41f0-9a51-7590622e5b7a",
+        "text": "aRa for all a",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "9671a315-f68a-4966-89fa-7dd982ddbcdc",
+        "text": "None of the above",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "7543136b-0f4b-4f99-9801-0cf92679b827",
+    "type": "multiple-choice",
+    "text": "If a relation is reflexive and symmetric but NOT transitive, it is:",
+    "explanation": "",
+    "options": [
+      {
+        "id": "9755f281-653b-41d3-a456-10419617ab4b",
+        "text": "Equivalence relation",
+        "isCorrect": false
+      },
+      {
+        "id": "c224a2ff-6d47-46d5-a880-344d21bf758e",
+        "text": "Not an equivalence relation",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "c2a8e391-021a-4d82-b82a-7f594d4fdc57",
+    "type": "multiple-choice",
+    "text": "Let the set be {1,2}, and R = {(1,1), (2,2)}. Select all options that are TRUE.",
+    "explanation": "Reflexive means that for every a ∈ A, (a , a) ∈ R.\nSymmetric means that if (a, b) ∈ R, then (b, a) ∈ R.\nAntisymmetric means that if (a, b) ∈ R and (b, a) ∈ R, then a = b\nTransitive means that if (a, b) ∈ R and (b, c) ∈ R, then (a, c) ∈ R",
+    "options": [
+      {
+        "id": "6be221d7-2b49-4942-bc25-039bad80e7a3",
+        "text": "Reflexive",
+        "isCorrect": true
+      },
+      {
+        "id": "124c16d0-4e05-4eb8-a3b5-36dd92af92d3",
+        "text": "Symmetric",
+        "isCorrect": true
+      },
+      {
+        "id": "142fa137-54f2-4b3d-b097-0dcb651af7a4",
+        "text": "Transitive",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "91b33de9-da4a-4da3-ae8b-18930e9447a5",
+        "text": "Antisymmetric",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "7da22c13-a333-44a8-b60f-e51cdd6c66e1",
+        "text": "Equivalence relation",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "20fc9326-f168-4cc4-9b06-f97cad4d9489",
+    "type": "multiple-choice",
+    "text": "Which is always TRUE about any sets A and B?",
+    "explanation": "A ⊆ (A U B) is always true, since union only makes things bigger or equal.\n(A ∩ B) ⊆ A is always true, since intersection is the part common to both and is always inside A.\n(A ∩ B) ⊆ B is always true, since intersection is the part common to both and is always inside B.\nA ⊆ A is always true, as every set is a subset of itself.",
+    "options": [
+      {
+        "id": "3e3a77bb-52f7-4b45-8309-7d6a82127254",
+        "text": "A - B = B - A",
+        "isCorrect": false
+      },
+      {
+        "id": "9631b7a1-7a61-4c51-968a-41d985fbf044",
+        "text": "A ⊆ (A U B)",
+        "isCorrect": true
+      },
+      {
+        "id": "658096ee-8caa-4d5d-8afc-f0d3ebac7172",
+        "text": "A ⊆ B",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "d123cf26-de13-4c58-b25b-b7ddbbeef4a6",
+        "text": "A U B = A",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "6f27084b-9d47-43d3-af9d-d397d2766cb4",
+        "text": "(A ∩ B) ⊆ A",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "07197888-67d4-4a50-94cd-68f0af022ba8",
+        "text": "(A ∩ B) ⊆ B",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "d8e3e9f6-681c-4ea4-8555-9da0cac2e468",
+        "text": "A ⊆ (A ∩ B)",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "a21dde41-cd07-4632-8eb9-074beada60ce",
+        "text": "(A ∪ B) - A = B",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "36738e69-0dd2-4640-94b5-95c47bda8ef0",
+        "text": "A ⊆ A",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "af4a039c-2006-4705-9e65-8494dac5bbc8",
+        "text": "A ⊂ A",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "1368b63f-b9ba-4f66-b9d5-5d97c4bd2221",
+        "text": "A ∩ (B - A) = A",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "2eafd2ff-ded0-4759-94a6-483cbe0ff2a6",
+    "type": "multiple-choice",
+    "text": "Evaluate 127 ≡ x (mod 4) where  80 ≤ x < 87",
+    "explanation": "",
+    "options": [
+      {
+        "id": "6b465ad6-7dce-4909-a68b-aab24ff3f803",
+        "text": "80",
+        "isCorrect": false
+      },
+      {
+        "id": "0efb2673-3a21-40f2-85de-8cd6fbf1bfec",
+        "text": "81",
+        "isCorrect": false
+      },
+      {
+        "id": "a741f1f7-152f-447a-9a2e-4cc82ab2729e",
+        "text": "82",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "3de0b012-6c76-415b-80a0-c3228e9a014a",
+        "text": "83",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "3df0050d-3b78-4f34-af26-8851a6d32160",
+        "text": "84",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "2867df96-bb02-48e1-9970-08bba87d78ae",
+        "text": "85",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "da9e1157-ada7-4e19-9c8e-aef84daf87e0",
+        "text": "86",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "7346cb9f-5c1c-4b9c-affd-44c7a12128f9",
+        "text": "87",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "7616ae3a-5436-487f-b545-b946955421d6",
+    "type": "multiple-choice",
+    "text": "Which of the following is a tautology?¬",
+    "explanation": "",
+    "options": [
+      {
+        "id": "7d9a9ad9-f72e-4220-bd7a-06e862a96d5d",
+        "text": "p ∧ ¬p",
+        "isCorrect": false
+      },
+      {
+        "id": "cb2a9b8e-cc26-4715-bf25-94baefc74155",
+        "text": "p ∨ ¬p",
+        "isCorrect": true
+      },
+      {
+        "id": "c439efa2-0331-444a-b9b6-def724619c52",
+        "text": "p → ¬p",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "2fa0d952-9f17-4b91-928f-112f69721fdb",
+        "text": "¬(p ∨ q)",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "cffe877a-e5e4-48d0-91c8-ce321b18aca1",
+    "type": "multiple-choice",
+    "text": "The contrapositive of p → q is",
+    "explanation": "",
+    "options": [
+      {
+        "id": "02954866-0edb-4d89-922a-4251b7fbafb0",
+        "text": "q → p",
+        "isCorrect": false
+      },
+      {
+        "id": "c89e2693-70f3-4957-a00a-e66c21bb0693",
+        "text": "¬p → ¬q",
+        "isCorrect": false
+      },
+      {
+        "id": "c6f37877-1371-4d37-9877-c9aaf8750e29",
+        "text": "¬q → ¬p",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "5f6bdd2f-95f0-4786-b93a-50f2a0ff0682",
+        "text": "p ↔ q",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "130b8598-cb86-4fa0-b12c-7526aa63bb1a",
+    "type": "multiple-choice",
+    "text": "Which is a contradiction?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "ddf003c2-2b07-4b40-82a0-67ed91018ef9",
+        "text": "¬(p ∨ q)",
+        "isCorrect": false
+      },
+      {
+        "id": "b0c56dfc-73a5-4ebd-96ef-ecfe05330a64",
+        "text": "p ∨ ¬p",
+        "isCorrect": false
+      },
+      {
+        "id": "5a935470-b925-45fa-aada-03e5fe2081de",
+        "text": "p ∧ ¬p",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "80121049-5d5e-45a9-956e-f9e300d14650",
+        "text": "¬p ∧ ¬q",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "abb756f6-e978-415e-b6a2-26b50ce654d7",
+    "type": "multiple-choice",
+    "text": "The negation of ∀x P(x) is:",
+    "explanation": "",
+    "options": [
+      {
+        "id": "303426f9-3729-4b92-8005-6ac3ebe1cc9f",
+        "text": "∀x¬P(x)",
+        "isCorrect": false
+      },
+      {
+        "id": "7b99b002-7bf6-4a6d-a62c-e050f47795d3",
+        "text": "¬∃xP(x)",
+        "isCorrect": false
+      },
+      {
+        "id": "f7a7b93d-7085-47ba-ae7f-46245f5b1919",
+        "text": "∃x¬P(x)",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "5b5e9c56-fbe3-4f9d-bb76-1317b14eb5d4",
+        "text": "None of the above",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "60ba460e-bf5c-430f-bb56-30595bf11969",
+    "type": "multiple-choice",
+    "text": "*** [I'm not sure if it will come out but take note]\nWhich expresses \"There is exactly one x such that P(x)\"?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "69036d7e-8d3a-4f44-9558-6a838d6e69b8",
+        "text": "∃xP(x)",
+        "isCorrect": false
+      },
+      {
+        "id": "f364df53-ffa9-462d-9cd7-a7a62370fc76",
+        "text": "∃xP(x) ∧ ∀y(P(y) → y = x)",
+        "isCorrect": true
+      },
+      {
+        "id": "b82dc8cf-da18-4dc8-9b69-18148a65243b",
+        "text": "∃xP(x) ∧  (x = 1)",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "b6785680-4aee-4214-b8c9-c1ca2eaa0431",
+        "text": "∃x∀y P(y)",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "de0edd60-f3a3-4b36-ab98-143668bf6a49",
+    "type": "multiple-choice",
+    "text": "Translate: Not every number is even",
+    "explanation": "∃xOdd(x) is also a correct translation if you assume the standard meaning: ¬Even(x)≡Odd(x)",
+    "options": [
+      {
+        "id": "6c464f83-633e-4140-9ceb-a9ab999aa764",
+        "text": "¬∀xEven(x)",
+        "isCorrect": true
+      },
+      {
+        "id": "39e7d160-d6b6-4762-92ba-ff2ff2f4bde5",
+        "text": "∀x¬Even(x)",
+        "isCorrect": false
+      },
+      {
+        "id": "c1b64309-867b-4c51-8e2e-fc693195ab86",
+        "text": "∃x¬Even(x)",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "84d8bd70-c4df-4dda-8163-38dd1c4126f1",
+        "text": "∃xOdd(x)",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "aae53525-fab5-4015-a587-91f47e82fb5a",
+    "type": "multiple-choice",
+    "text": "Number of ways to arrange the letters of BALLOON",
+    "explanation": "",
+    "options": [
+      {
+        "id": "9bdf45b9-ace9-4211-8b36-5a619225ec68",
+        "text": "7!",
+        "isCorrect": false
+      },
+      {
+        "id": "4c82e4e0-f932-404a-803b-97ba9d9e798a",
+        "text": "7! / (2!2!)",
+        "isCorrect": true
+      },
+      {
+        "id": "54bd0eb9-64ab-4104-8fc2-825cd04a8377",
+        "text": "7! / (2!2!3!)",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "3e6c0533-b6c7-4a16-9787-3abe54804577",
+        "text": "7! / 4!",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "fd705dbb-16c0-4d33-945e-a28d1a938e39",
+    "type": "multiple-choice",
+    "text": "Number of ways to select 3 people from a group of 10 people",
+    "explanation": "",
+    "options": [
+      {
+        "id": "54b8c7be-0b7a-43c7-ba0a-37e62e02d97c",
+        "text": "10P3",
+        "isCorrect": false
+      },
+      {
+        "id": "55572af2-05d1-4af0-bdd1-1ce39ad5c5d0",
+        "text": "10C3",
+        "isCorrect": true
+      },
+      {
+        "id": "09ed8c1a-ba54-4abd-b156-d59837e62506",
+        "text": "10! / 3",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "a9bd698d-7222-493c-83f4-2391f4196070",
+        "text": "3¹⁰",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "52ea1a68-6f38-47dc-8d5f-2a950784edfa",
+    "type": "multiple-choice",
+    "text": "How many ways to select a committee of 4 from 6 men and 5 women, if at least 2 must be women?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "f3e4bd1c-fc3d-430d-bba6-440eb3804fc3",
+        "text": "5C2 × 6C2 + 5C3 × 6C1 + 5C4",
+        "isCorrect": true
+      },
+      {
+        "id": "74f5e65d-002b-4df3-9486-6cfde008537d",
+        "text": "5C4",
+        "isCorrect": false
+      },
+      {
+        "id": "ca3078ce-1d79-46dc-bd7c-8157528519e9",
+        "text": "11C4",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "0bc12f8d-2274-4bb9-a5eb-6c6f61714819",
+        "text": "5C2 × 6C2",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "8d49db26-8f8f-42e3-83f0-5d5cc00b0151",
+        "text": "11C4 - 5C1 × 6C3 - 5C0 × 6C4",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "0b6c4ce7-bf82-43c7-8d24-75fb678852bb",
+    "type": "multiple-choice",
+    "text": "Number of 5-letter \"words\" from A-Z with repetitions",
+    "explanation": "",
+    "options": [
+      {
+        "id": "6d6f3f87-9d96-4ddf-9b19-31881acb14ad",
+        "text": "26P5",
+        "isCorrect": false
+      },
+      {
+        "id": "dbcf7374-107a-4cfb-a93b-03dd073338f8",
+        "text": "26C5",
+        "isCorrect": false
+      },
+      {
+        "id": "52b83e97-caad-4b81-bfcb-560ea939ab19",
+        "text": "26⁵",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "43c1d3bf-4e7d-4497-92f1-9f66d0537a27",
+        "text": "5²⁶",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "0c1c9a72-9fcd-4c46-83b6-c4b3bae5be03",
+    "type": "multiple-choice",
+    "text": "How many subsets does a set of size 7 have?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "ec91aac4-5e2d-4a60-b8a7-a06d585bda48",
+        "text": "7",
+        "isCorrect": false
+      },
+      {
+        "id": "9b3f5c05-b0f8-4d81-bcf0-150cc7f5d0d4",
+        "text": "7!",
+        "isCorrect": false
+      },
+      {
+        "id": "0663d0e6-bbae-42ca-8ac2-f838007354b5",
+        "text": "2⁷",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "b6108f47-abf2-4dc2-838f-600f28e20a00",
+        "text": "7²",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "1e87e566-9fcc-4b9e-9613-e3404a1a72e6",
+        "text": "7C2",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "ffe450a8-fca5-4766-9190-22426ed3fec3",
+    "type": "multiple-choice",
+    "text": "A password has 3 letters followed by 2 digits (0-9). No repetition. What is the total number of ways?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "dde25896-e597-478d-bc5a-559d6dc20936",
+        "text": "26P3 × 10P2",
+        "isCorrect": true
+      },
+      {
+        "id": "88c37fa6-cb67-4fa1-a629-5d1e4b44cc4c",
+        "text": "26C3 × 10C2",
+        "isCorrect": false
+      },
+      {
+        "id": "d9f3295b-3091-4e7b-abe7-418e399b3690",
+        "text": "26³ × 10²",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "e9495ad2-3a31-4a00-a99b-8ba2b5a780d1",
+        "text": "26P5",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "76537eaa-2aca-4087-ba8a-5486a923e93a",
+    "type": "input",
+    "text": "How many 7-digit numbers start and end with an odd digit?",
+    "explanation": "5 × 10⁵ × 5 = 2500000",
+    "correctAnswer": "2500000"
+  }
+];
+
+        // Fisher-Yates Shuffle
+        function shuffle(array) {
+            if (!array) return [];
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // State
+        let currentQuestionIndex = 0;
+        let shuffledQuestions = [];
+        let userAnswers = [];
+        let score = 0;
+        let isAnswered = false;
+        let allowRetry = false;
+
+        // Initialize effects
+        function initEffects() {
+            // Rain
+            const rainContainer = document.getElementById('rain');
+            for (let i = 0; i < 50; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+                drop.style.animationDelay = -Math.random() * 2 + 's';
+                rainContainer.appendChild(drop);
+            }
+
+            // Fish
+            const fishContainer = document.getElementById('fish-container');
+            const fishes = ['🐠', '🐟', '🐡'];
+            for (let i = 0; i < 5; i++) {
+                const fish = document.createElement('div');
+                fish.className = 'fish';
+                fish.textContent = fishes[Math.floor(Math.random() * fishes.length)];
+                fish.style.top = Math.random() * 80 + 10 + '%';
+                fish.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                fish.style.animationDelay = -Math.random() * 15 + 's';
+                fishContainer.appendChild(fish);
+            }
+
+            // Bubbles
+            const bubbleContainer = document.getElementById('bubble-container');
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.width = bubble.style.height = (Math.random() * 20 + 10) + 'px';
+                bubble.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                bubble.style.animationDelay = -Math.random() * 10 + 's';
+                bubbleContainer.appendChild(bubble);
+            }
+        }
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Start Quiz
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            score = 0;
+            isAnswered = false;
+            allowRetry = document.getElementById('allow-retry').checked;
+            allowRetry = document.getElementById('allow-retry').checked;
+            shuffledQuestions = shuffle(QUESTIONS || []);
+            showScreen('quiz-screen');
+            displayQuestion();
+        }
+
+        // Display Question
+        function displayQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            isAnswered = false;
+            
+            document.getElementById('question-counter').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
+
+            const container = document.getElementById('question-container');
+            let html = `
+                <div class="question-card">
+                    <div class="question-type">${question.type.replace('-', ' ')}</div>
+                    <div class="question-text">${question.text}</div>
+            `;
+
+            const options = question.options || [];
+
+            if (question.type === 'single-choice' || question.type === 'multiple-choice') {
+                const shuffledOptions = shuffle(options);
+                if (question.type === 'single-choice') {
+                    html += '<div class="options">';
+                    shuffledOptions.forEach((opt, idx) => {
+                        html += `<div class="option" onclick="selectOption(${idx})" id="option-${idx}" data-option-id="${opt.id}">${opt.text}</div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div class="checkbox-group">';
+                    shuffledOptions.forEach((opt, idx) => {
+                        // Escape HTML to prevent issues - use fallback ID if missing
+                        const optId = opt.id || `generated-id-${idx}`;
+                        const optText = opt.text || '';
+                        console.log('Checkbox option:', { idx, optId, optText, rawOpt: opt });
+                        html += `
+                            <label class="checkbox-option" data-option-id="${optId}">
+                                <input type="checkbox" id="checkbox-${idx}" value="${optId}" name="multi-choice">
+                                <span>${optText}</span>
+                            </label>
+                        `;
+                    });
+                    html += '</div>';
+                }
+            } else if (question.type === 'true-false') {
+                html += `
+                    <div class="options">
+                        <div class="option" onclick="selectOption(0)" id="option-0">True</div>
+                        <div class="option" onclick="selectOption(1)" id="option-1">False</div>
+                    </div>
+                `;
+            } else if (question.type === 'input') {
+                html += `<input type="text" id="user-input" placeholder="Type your answer...">`;
+            } else if (question.type === 'range') {
+                const min = question.rangeConfig?.min || 0;
+                const max = question.rangeConfig?.max || 100;
+                const step = question.rangeConfig?.step || 1;
+                let mid = Math.floor((min + max) / 2);
+                // Ensure mid is not the correct answer (to prevent giving away the answer)
+                const correctAns = Number(question.correctAnswer);
+                if (mid === correctAns) {
+                    // Shift mid away from correct answer
+                    mid = min;
+                }
+                html += `
+                    <div class="range-value" id="range-value">${mid}</div>
+                    <input type="range" id="range-input" min="${min}" max="${max}" value="${mid}" step="${step}"
+                           oninput="document.getElementById('range-value').textContent = this.value">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px;">
+                        <span>${min}</span>
+                        <span>${max}</span>
+                    </div>
+                `;
+            } else if (question.type === 'matching') {
+                const shuffledMatches = shuffle(options.map(o => o.matchText));
+                html += '<div class="match-container">';
+                options.forEach((opt, idx) => {
+                    html += `
+                        <div class="match-item" id="match-item-${idx}">
+                            <div class="match-text">${opt.text}</div>
+                            <div class="match-arrow">→</div>
+                            <select id="match-${idx}" class="match-text" data-correct="${opt.matchText}">
+                                <option value="">Select match...</option>
+                                ${shuffledMatches.map(m => `<option value="${m}">${m}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else if (question.type === 'ordering') {
+                const shuffledOptions = shuffle(options);
+                // Create array of sequential positions and shuffle them for default values
+                const defaultPositions = options.map((_, i) => i + 1);
+                const shuffledDefaults = shuffle([...defaultPositions]);
+                html += '<div class="ordering-container">';
+                shuffledOptions.forEach((opt, idx) => {
+                    html += `
+                        <div class="ordering-item" id="order-item-${idx}" data-option-text="${opt.text}">
+                            <select id="order-${idx}" class="order-number">
+                                ${options.map((_, i) => `<option value="${i + 1}"${shuffledDefaults[idx] === i + 1 ? ' selected' : ''}>${i + 1}</option>`).join('')}
+                            </select>
+                            <div class="match-text" style="flex: 1">${opt.text}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // Disable all question inputs
+        function disableAllInputs() {
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                opt.style.opacity = '0.6';
+            });
+            document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+                cb.disabled = true;
+                cb.parentElement.style.opacity = '0.6';
+            });
+            document.querySelectorAll('select.order-number, select.match-select').forEach(sel => {
+                sel.disabled = true;
+                sel.style.opacity = '0.6';
+            });
+            const rangeInput = document.getElementById('range-input');
+            if (rangeInput) {
+                rangeInput.disabled = true;
+                rangeInput.style.opacity = '0.6';
+            }
+            const textInput = document.getElementById('user-input');
+            if (textInput) {
+                textInput.disabled = true;
+                textInput.style.opacity = '0.6';
+            }
+        }
+        
+        // Enable all question inputs
+        function enableAllInputs() {
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'auto';
+                opt.style.opacity = '1';
+            });
+            document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+                cb.disabled = false;
+                cb.parentElement.style.opacity = '1';
+            });
+            document.querySelectorAll('select.order-number, select.match-select').forEach(sel => {
+                sel.disabled = false;
+                sel.style.opacity = '1';
+            });
+            const rangeInput = document.getElementById('range-input');
+            if (rangeInput) {
+                rangeInput.disabled = false;
+                rangeInput.style.opacity = '1';
+            }
+            const textInput = document.getElementById('user-input');
+            if (textInput) {
+                textInput.disabled = false;
+                textInput.style.opacity = '1';
+            }
+        }
+
+        // Select Option (for single choice and true-false)
+        function selectOption(index) {
+            if (isAnswered) return;
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById(`option-${index}`).classList.add('selected');
+        }
+
+        // Submit Answer
+        function submitAnswer() {
+            if (isAnswered) {
+                nextQuestion();
+                return;
+            }
+
+            const question = shuffledQuestions[currentQuestionIndex];
+            const options = question.options || [];
+            let userAnswer;
+            let isCorrect = false;
+
+            if (question.type === 'single-choice') {
+                const selected = document.querySelector('.option.selected');
+                if (!selected) {
+                    alert('Please select an answer');
+                    return;
+                }
+                const selectedOptionId = selected.getAttribute('data-option-id');
+                userAnswer = selectedOptionId;
+                const correctOption = options.find(o => o.id === selectedOptionId);
+                isCorrect = correctOption && correctOption.isCorrect;
+            } else if (question.type === 'multiple-choice') {
+                const checked = Array.from(document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked'));
+                if (checked.length === 0) {
+                    alert('Please select at least one answer');
+                    return;
+                }
+                userAnswer = checked.map(c => c.value);
+                const correctIds = options.filter(o => o.isCorrect).map(o => o.id);
+                // Sort copies for comparison without modifying originals
+                const sortedUserAnswer = [...userAnswer].sort();
+                const sortedCorrectIds = [...correctIds].sort();
+                isCorrect = sortedUserAnswer.length === sortedCorrectIds.length && 
+                           sortedUserAnswer.every((v, i) => v === sortedCorrectIds[i]);
+                console.log('Multiple-choice validation:', {
+                    userAnswer,
+                    correctIds,
+                    sortedUserAnswer,
+                    sortedCorrectIds,
+                    isCorrect,
+                    lengthMatch: sortedUserAnswer.length === sortedCorrectIds.length
+                });
+            } else if (question.type === 'true-false') {
+                const selected = document.querySelector('.option.selected');
+                if (!selected) {
+                    alert('Please select an answer');
+                    return;
+                }
+                userAnswer = selected.textContent.trim().toLowerCase();
+                isCorrect = userAnswer === String(question.correctAnswer).toLowerCase();
+            } else if (question.type === 'input') {
+                userAnswer = document.getElementById('user-input').value.trim();
+                if (!userAnswer) {
+                    alert('Please enter an answer');
+                    return;
+                }
+                isCorrect = userAnswer.toLowerCase() === String(question.correctAnswer).toLowerCase();
+            } else if (question.type === 'range') {
+                const rangeInput = document.getElementById('range-input');
+                userAnswer = parseInt(rangeInput.value);
+                const tolerance = question.rangeConfig?.tolerance || 0;
+                const correctAns = Number(question.correctAnswer);
+                const difference = Math.abs(userAnswer - correctAns);
+                isCorrect = difference <= tolerance;
+                console.log('Range validation:', {
+                    userAnswer,
+                    correctAns,
+                    tolerance,
+                    difference,
+                    isCorrect,
+                    rangeConfig: question.rangeConfig
+                });
+                console.log('Range check:', { userAnswer, correctAns, tolerance, difference, isCorrect });
+            } else if (question.type === 'matching') {
+                userAnswer = {};
+                let allSelected = true;
+                options.forEach((opt, idx) => {
+                    const selected = document.getElementById(`match-${idx}`).value;
+                    if (!selected) allSelected = false;
+                    userAnswer[opt.text] = selected;
+                });
+                if (!allSelected) {
+                    alert('Please match all items');
+                    return;
+                }
+                isCorrect = options.every(opt => userAnswer[opt.text] === opt.matchText);
+            } else if (question.type === 'ordering') {
+                userAnswer = [];
+                const orderSelects = document.querySelectorAll('select.order-number');
+                const orderMap = {};
+                orderSelects.forEach((select) => {
+                    const order = parseInt(select.value);
+                    const orderItem = select.closest('.ordering-item');
+                    const text = orderItem ? orderItem.getAttribute('data-option-text') : null;
+                    if (text) {
+                        orderMap[order] = text;
+                    }
+                });
+                // Build ordered array from the map
+                for (let i = 1; i <= options.length; i++) {
+                    if (orderMap[i]) {
+                        userAnswer.push(orderMap[i]);
+                    }
+                }
+                const correctOrder = options.map(o => o.text);
+                isCorrect = userAnswer.length === correctOrder.length && userAnswer.every((t, i) => t === correctOrder[i]);
+            }
+
+            isAnswered = true;
+            userAnswers.push({ question: question.id, answer: userAnswer, correct: isCorrect });
+            if (isCorrect) score++;
+
+            // Trigger confetti on correct answer
+            if (isCorrect && typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Disable all inputs after submission
+            disableAllInputs();
+            
+            // Update button text based on retry settings
+            const submitBtn = document.getElementById('submit-btn');
+            if (!isCorrect && allowRetry) {
+                submitBtn.textContent = 'Retry Question';
+            } else {
+                submitBtn.textContent = currentQuestionIndex < shuffledQuestions.length - 1 ? 'Next Question' : 'View Results';
+            }
+
+            // Show feedback banner
+            const banner = document.createElement('div');
+            banner.className = `feedback-banner ${isCorrect ? 'correct' : 'incorrect'}`;
+            banner.textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+            document.body.appendChild(banner);
+            setTimeout(() => banner.remove(), 2000);
+
+            // Show feedback on options (only if retry is disabled or answer is correct)
+            const showCorrectAnswers = !allowRetry || isCorrect;
+            
+            if (showCorrectAnswers && (question.type === 'single-choice' || question.type === 'true-false')) {
+                document.querySelectorAll('.option').forEach((opt) => {
+                    if (question.type === 'single-choice') {
+                        const optId = opt.getAttribute('data-option-id');
+                        const option = options.find(o => o.id === optId);
+                        if (option && option.isCorrect) {
+                            opt.classList.add('correct');
+                        }
+                    } else if (question.type === 'true-false' && 
+                              opt.textContent.trim().toLowerCase() === String(question.correctAnswer).toLowerCase()) {
+                        opt.classList.add('correct');
+                    }
+                    if (opt.classList.contains('selected') && !isCorrect) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            } else if (showCorrectAnswers && question.type === 'multiple-choice') {
+                // Disable all checkboxes
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.disabled = true;
+                });
+                // Show correct answers
+                document.querySelectorAll('.checkbox-option').forEach((opt) => {
+                    const checkbox = opt.querySelector('input[type="checkbox"]');
+                    const optionId = checkbox.value;
+                    const option = options.find(o => o.id === optionId);
+                    if (option && option.isCorrect) {
+                        opt.classList.add('correct');
+                    }
+                    if (checkbox.checked && option && !option.isCorrect) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            } else if (showCorrectAnswers && question.type === 'range') {
+                // Hide the entire slider container to avoid confusion
+                const rangeInput = document.getElementById('range-input');
+                const rangeValue = document.getElementById('range-value');
+                if (rangeInput && rangeInput.nextElementSibling) {
+                    // Hide the slider
+                    rangeInput.style.display = 'none';
+                    // Hide the min/max labels (next sibling div)
+                    rangeInput.nextElementSibling.style.display = 'none';
+                }
+                if (rangeValue) {
+                    rangeValue.style.display = 'none';
+                }
+                // Show correct answer with appropriate styling
+                const container = document.getElementById('question-container');
+                const tolerance = question.rangeConfig?.tolerance || 0;
+                const answerClass = isCorrect ? 'range-answer correct' : 'range-answer incorrect';
+                const answerHtml = `<div class="${answerClass}">Your answer: ${userAnswer}<br>Correct Answer: ${question.correctAnswer}${tolerance ? ` (±${tolerance})` : ''}</div>`;
+                container.innerHTML += answerHtml;
+            } else if (showCorrectAnswers && question.type === 'matching') {
+                // Disable all selects and show feedback
+                options.forEach((opt, idx) => {
+                    const select = document.getElementById(`match-${idx}`);
+                    select.disabled = true;
+                    const matchItem = document.getElementById(`match-item-${idx}`);
+                    const selectedValue = select.value;
+                    if (selectedValue === opt.matchText) {
+                        select.classList.add('correct-match');
+                    } else {
+                        select.classList.add('incorrect-match');
+                        // Show correct answer
+                        const correctSpan = document.createElement('div');
+                        correctSpan.className = 'match-text correct-match';
+                        correctSpan.textContent = `✓ ${opt.matchText}`;
+                        correctSpan.style.gridColumn = '3';
+                        correctSpan.style.marginTop = '5px';
+                        matchItem.parentElement.insertBefore(correctSpan, matchItem.nextSibling);
+                    }
+                });
+            } else if (showCorrectAnswers && question.type === 'ordering') {
+                // Disable all selects and show feedback
+                const correctOrder = options.map(o => o.text);
+                const orderSelects = document.querySelectorAll('select.order-number');
+                
+                console.log('Ordering feedback:', { correctOrder, selectCount: orderSelects.length });
+                
+                orderSelects.forEach((select, idx) => {
+                    select.disabled = true;
+                    select.style.pointerEvents = 'none';
+                    const orderItem = select.closest('.ordering-item');
+                    
+                    if (!orderItem) {
+                        console.error('No order item found for idx:', idx);
+                        return;
+                    }
+                    
+                    const text = orderItem.getAttribute('data-option-text');
+                    const userSelectedOrder = parseInt(select.value);
+                    
+                    if (!text) {
+                        console.error('No text found for order item:', idx, orderItem);
+                        return;
+                    }
+                    
+                    // Find correct position of this text in the original order
+                    // Trim whitespace to avoid matching issues
+                    const trimmedText = text.trim();
+                    let correctPosition = -1;
+                    for (let i = 0; i < correctOrder.length; i++) {
+                        if (correctOrder[i] && correctOrder[i].trim() === trimmedText) {
+                            correctPosition = i + 1; // Convert to 1-based
+                            break;
+                        }
+                    }
+                    
+                    console.log('Item check:', { text: trimmedText, userPos: userSelectedOrder, correctPos: correctPosition, match: userSelectedOrder === correctPosition });
+                    
+                    if (correctPosition === -1) {
+                        console.error('Could not find correct position for:', text);
+                        correctPosition = 1; // Fallback
+                    }
+                    
+                    if (userSelectedOrder === correctPosition) {
+                        orderItem.classList.add('correct-order');
+                        // Show checkmark for correct items
+                        const correctLabel = document.createElement('span');
+                        correctLabel.textContent = ' ✓';
+                        correctLabel.style.color = '#22c55e';
+                        correctLabel.style.fontSize = '18px';
+                        correctLabel.style.marginLeft = '10px';
+                        correctLabel.style.fontWeight = 'bold';
+                        orderItem.appendChild(correctLabel);
+                    } else {
+                        orderItem.classList.add('incorrect-order');
+                        // Show correct order
+                        const correctLabel = document.createElement('span');
+                        correctLabel.textContent = ` (Should be position: ${correctPosition})`;
+                        correctLabel.style.color = '#22c55e';
+                        correctLabel.style.fontSize = '14px';
+                        correctLabel.style.marginLeft = '10px';
+                        orderItem.appendChild(correctLabel);
+                    }
+                });
+            }
+
+            // Show explanation if exists
+            if (question.explanation) {
+                const container = document.getElementById('question-container');
+                container.innerHTML += `<div class="explanation"><strong>Explanation:</strong> ${question.explanation}</div>`;
+            }
+        }
+
+        // Next Question
+        function nextQuestion() {
+            // If retry is enabled and user got it wrong, stay on same question
+            if (allowRetry && userAnswers.length > 0 && !userAnswers[userAnswers.length - 1].correct) {
+                // Remove the wrong answer from history to allow retry
+                userAnswers.pop();
+                score = Math.max(0, score);
+                isAnswered = false;
+                displayQuestion();
+                enableAllInputs(); // Enable inputs for retry
+                document.getElementById('submit-btn').textContent = 'Submit Answer';
+                return;
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                displayQuestion();
+                document.getElementById('submit-btn').textContent = 'Submit Answer';
+            } else {
+                showResults();
+            }
+        }
+
+        // Show Results
+        function showResults() {
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            document.getElementById('score-percentage').textContent = percentage + '%';
+            document.getElementById('correct-count').textContent = score;
+            document.getElementById('incorrect-count').textContent = shuffledQuestions.length - score;
+            showScreen('results-screen');
+        }
+
+        // Restart Quiz
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        // Show Review
+        function showReview() {
+            const container = document.getElementById('review-container');
+            let html = '';
+
+            shuffledQuestions.forEach((question, idx) => {
+                const userAnswer = userAnswers[idx];
+                const isCorrect = userAnswer ? userAnswer.correct : false;
+                const statusColor = isCorrect ? '#22c55e' : '#ef4444';
+                const statusIcon = isCorrect ? '✓' : '✗';
+
+                html += `
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 4px solid ${statusColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <h3 style="margin: 0; font-size: 16px;">Question ${idx + 1}</h3>
+                            <span style="color: ${statusColor}; font-size: 20px; font-weight: bold;">${statusIcon}</span>
+                        </div>
+                        <p style="font-size: 15px; margin: 10px 0;">${question.text}</p>
+                `;
+
+                const options = question.options || [];
+
+                // Display answer based on question type
+                if (question.type === 'single-choice' || question.type === 'multiple-choice' || question.type === 'true-false') {
+                    const correctOptions = options.filter(o => o.isCorrect).map(o => o.text);
+                    const userSelectedIds = Array.isArray(userAnswer?.answer) ? userAnswer.answer : [userAnswer?.answer];
+                    const userSelected = options.filter(o => userSelectedIds.includes(o.id)).map(o => o.text);
+                    
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your answer:</strong> ${userSelected.join(', ') || 'Not answered'}</div>
+                            <div style="color: #22c55e;"><strong>Correct answer:</strong> ${correctOptions.join(', ')}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'input') {
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your answer:</strong> ${userAnswer?.answer || 'Not answered'}</div>
+                            <div style="color: #22c55e;"><strong>Correct answer:</strong> ${question.correctAnswer}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'range') {
+                    const tolerance = question.rangeConfig?.tolerance || 0;
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your answer:</strong> ${userAnswer?.answer || 'Not answered'}</div>
+                            <div style="color: #22c55e;"><strong>Correct answer:</strong> ${question.correctAnswer}${tolerance ? ` (±${tolerance})` : ''}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'ordering') {
+                    const correctOrder = options.map(o => o.text).join(' → ');
+                    const userOrder = userAnswer?.answer ? userAnswer.answer.join(' → ') : 'Not answered';
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your order:</strong> ${userOrder}</div>
+                            <div style="color: #22c55e;"><strong>Correct order:</strong> ${correctOrder}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'matching') {
+                    html += `<div style="margin-top: 10px; font-size: 14px;">`;
+                    options.forEach(opt => {
+                        const userMatch = userAnswer?.answer ? userAnswer.answer[opt.text] : 'Not answered';
+                        const isMatchCorrect = userMatch === opt.matchText;
+                        html += `
+                            <div style="margin: 5px 0;">
+                                <strong>${opt.text}:</strong> ${userMatch}
+                                ${!isMatchCorrect ? `<span style="color: #22c55e;"> (Correct: ${opt.matchText})</span>` : ''}
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                if (question.explanation) {
+                    html += `
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(59,130,246,0.1); border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 13px;">
+                            <strong>Explanation:</strong> ${question.explanation}
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+            showScreen('review-screen');
+        }
+
+
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initEffects();
+            
+            // Register service worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => self.clients.claim());
+                `));
+            }
+        });
+    </script>
+</body>
+</html>

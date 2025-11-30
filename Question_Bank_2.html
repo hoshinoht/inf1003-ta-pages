@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e3a5f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Question Bank 2</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWF0aHMgVGVzdCAtIFF1ZXN0aW9uIEJhbmsgMiIsInNob3J0X25hbWUiOiJRdWVzdGlvbiBCYW5rIDIiLCJkZXNjcmlwdGlvbiI6IlF1aXogYXBwIGZvciBRdWVzdGlvbiBCYW5rIDIiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBhMTkyOSIsInRoZW1lX2NvbG9yIjoiIzFlM2E1ZiIsIm9yaWVudGF0aW9uIjoicG9ydHJhaXQiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9XCJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Z1wiIHZpZXdCb3g9XCIwIDAgNTEyIDUxMlwiPjxyZWN0IGZpbGw9XCIlMjMxZTNhNWZcIiB3aWR0aD1cIjUxMlwiIGhlaWdodD1cIjUxMlwiLz48dGV4dCB4PVwiNTAlXCIgeT1cIjUwJVwiIHRleHQtYW5jaG9yPVwibWlkZGxlXCIgZHk9XCIuM2VtXCIgZmlsbD1cIndoaXRlXCIgZm9udC1zaXplPVwiMjU2XCIgZm9udC1mYW1pbHk9XCJBcmlhbFwiPlE8L3RleHQ+PC9zdmc+Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #0a1929 0%, #1a3a52 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Aquarium Theme Effects */
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 1px;
+            height: 20px;
+            background: linear-gradient(transparent, rgba(100, 180, 255, 0.3));
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        .fish {
+            position: fixed;
+            font-size: 30px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.7;
+            animation: swim linear infinite;
+            transform: scaleX(-1); /* Flip fish to face right */
+        }
+
+        @keyframes swim {
+            from { transform: translateX(-100px) scaleX(-1); }
+            to { transform: translateX(calc(100vw + 100px)) scaleX(-1); }
+        }
+
+        .bubble {
+            position: fixed;
+            bottom: -50px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: rise linear infinite;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        @keyframes rise {
+            to { transform: translateY(-100vh); bottom: 100vh; }
+        }
+
+        /* App Content */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .screen {
+            display: none !important;
+        }
+
+        .screen.active {
+            display: block !important;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Start Screen */
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+
+        .start-screen h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-screen .subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+
+        /* Quiz Screen */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .question-counter {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .option:active {
+            transform: scale(0.98);
+        }
+
+        .option.selected {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .option.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 18px;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .feedback-banner.correct {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+        }
+
+        .feedback-banner.incorrect {
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select {
+            background: rgba(30, 58, 95, 0.8);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 40px;
+        }
+
+        select:hover {
+            background: rgba(30, 58, 95, 0.9);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(30, 58, 95, 1);
+        }
+
+        select option {
+            background: #1a3a52;
+            color: white;
+            padding: 10px;
+        }
+
+        select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        input[type="checkbox"]:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        input[type="checkbox"]:checked {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-color: #3b82f6;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 20px 0;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]:disabled::-webkit-slider-thumb {
+            cursor: not-allowed;
+        }
+
+        .range-value {
+            text-align: center;
+            font-size: 24px;
+            color: #60a5fa;
+            margin: 10px 0;
+        }
+
+        .range-answer {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .range-answer.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+
+        .range-answer.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border: 3px solid rgba(59, 130, 246, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .score-percentage {
+            font-size: 48px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .checkbox-option.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+
+        .checkbox-option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+
+        .match-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .match-item {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .match-text {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .match-text.correct-match {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+
+        .match-text.incorrect-match {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+        }
+
+        .match-arrow {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        select:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .ordering-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ordering-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-number {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .ordering-item.correct-order {
+            background: rgba(34, 197, 94, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #22c55e;
+        }
+
+        .ordering-item.incorrect-order {
+            background: rgba(239, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <!-- Aquarium Effects -->
+    <div class="rain" id="rain"></div>
+    <div id="fish-container"></div>
+    <div id="bubble-container"></div>
+
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active start-screen">
+            <h1>Question Bank 2</h1>
+            <p class="subtitle">31 Questions</p>
+            <div style="margin: 20px 0; text-align: center;">
+                <label style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; cursor: pointer;">
+                    <input type="checkbox" id="allow-retry" style="width: 20px; height: 20px; cursor: pointer;">
+                    <span>Allow retry on wrong answers</span>
+                </label>
+            </div>
+            <button class="btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <div class="question-counter" id="question-counter">Question 1 of 31</div>
+            </div>
+            <div id="question-container"></div>
+            <div class="btn-group">
+                <button class="btn" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen results-screen">
+            <h1>Quiz Complete!</h1>
+            <div class="score-circle">
+                <div class="score-percentage" id="score-percentage">0%</div>
+                <div class="score-label">Score</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #22c55e" id="correct-count">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #ef4444" id="incorrect-count">0</div>
+                    <div class="stat-label">Incorrect</div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn" onclick="showReview()">Review Answers</button>
+                <button class="btn" onclick="restartQuiz()">Try Again</button>
+            </div>
+        </div>
+
+        <!-- Review Screen -->
+        <div id="review-screen" class="screen">
+            <h1>Review Your Answers</h1>
+            <div id="review-container" style="margin: 20px 0;"></div>
+            <div class="btn-group">
+                <button class="btn" onclick="showScreen('results-screen')">Back to Results</button>
+                <button class="btn" onclick="restartQuiz()">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions Data
+        const QUESTIONS = [
+  {
+    "id": "7145cb5b-09fc-4d57-b115-d8af3fb3962a",
+    "type": "input",
+    "text": "If |A| = 6, how many elements are in power set P(A)?",
+    "explanation": "2⁶ = 64",
+    "correctAnswer": "64"
+  },
+  {
+    "id": "6e2512e3-865b-40de-b58c-bd36817c0444",
+    "type": "input",
+    "text": "If |A| = m and |B| = n, how many elements are in A × B?",
+    "explanation": "",
+    "correctAnswer": "mn"
+  },
+  {
+    "id": "2224cbf8-e435-471d-a508-d61276473854",
+    "type": "input",
+    "text": "If |A| = 7, how many PROPER subsets does A have?",
+    "explanation": "Step 1: 2⁷ = 128.\nStep 2: 128 - 1 = 127 (because it cannot contain itself)\ni.e. {A,B,C} is not a proper subset of {A,B,C}",
+    "correctAnswer": "127"
+  },
+  {
+    "id": "515f266e-3c0a-44d7-b80d-424fa439379d",
+    "type": "multiple-choice",
+    "text": "If A ∩ B = ∅, then |A ∪ B| = ?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "36f7e70b-3e0f-43f6-a450-1fdd91419865",
+        "text": "|A| + |B|",
+        "isCorrect": true
+      },
+      {
+        "id": "ad61351c-0c52-42d5-a77b-bd0d4c856151",
+        "text": "|A| - |B|",
+        "isCorrect": false
+      },
+      {
+        "id": "cf401187-e138-4149-a52b-1df5fdd0ab9c",
+        "text": "max(|A|, |B|)",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "0977b58c-66ab-4035-85b0-316905d73138",
+        "text": "|A||B|",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "f11922dc-95b2-4a72-bf11-a489fd0b2ef1",
+    "type": "single-choice",
+    "text": "Which of the identity is correct?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "e332707e-cfc1-4fb0-9d51-a04e815434f0",
+        "text": "A - B = (A - B) - A",
+        "isCorrect": false
+      },
+      {
+        "id": "6d24c484-08ab-4d2a-b86e-3b4eb0da664a",
+        "text": "A - (B ∪ C) = (A - B) ∩ (A - C)",
+        "isCorrect": true
+      },
+      {
+        "id": "8fbbda82-5a88-4a52-b3b4-d4f5985f5077",
+        "text": "A ∪ (B - C) = (A ∪ B) - C",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "144bd9fe-51aa-4e87-ac63-1e50a02969f6",
+        "text": "None of the above",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "ababaad8-11e4-45af-b711-9136ab8afa33",
+    "type": "multiple-choice",
+    "text": "If A ⊆ B, then",
+    "explanation": "",
+    "options": [
+      {
+        "id": "f779155e-eb1b-44ea-9955-9995c06cb764",
+        "text": "A ∪ B = A",
+        "isCorrect": false
+      },
+      {
+        "id": "dd50dc5e-a61b-46d5-aa0d-7ef9e766d88e",
+        "text": "A ∩ B = B",
+        "isCorrect": false
+      },
+      {
+        "id": "3deb07bb-3f9e-41df-baaa-ea61a904f153",
+        "text": "A - B = A",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "35b769e4-52b4-4125-9a1f-24ddac881789",
+        "text": "A U B = B",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "ad57a4fb-3f2e-42ee-ad98-10597e1197fb",
+    "type": "input",
+    "text": "If |A| = 4, how many ordered pairs (x,y) are there, where both are in A?",
+    "explanation": "(4x4)",
+    "correctAnswer": "16"
+  },
+  {
+    "id": "e9e47296-8162-41e9-99cf-47b2bc230078",
+    "type": "input",
+    "text": "Let A = {1,2,3,4,5}. How many subsets are size of exactly 3?",
+    "explanation": "5C3 = 10 Reasoning: {1,2,3}, {1,2,4}, {1,2,5} ......., which is taking 3 elements from 5 elements",
+    "correctAnswer": "10"
+  },
+  {
+    "id": "ec5e2aef-9e02-448b-9f5b-820f402becb9",
+    "type": "multiple-choice",
+    "text": "Which is always TRUE?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "c5971f34-159e-4443-b11c-7c2ce92571b9",
+        "text": "(A ∪ B = A) ⇒ (B = ∅)",
+        "isCorrect": false
+      },
+      {
+        "id": "b5875a08-d31d-485b-9d4c-278665d7de3c",
+        "text": "(A ∩ B = A) ⇒ (A ⊆ B)",
+        "isCorrect": true
+      },
+      {
+        "id": "32476916-182e-4a8c-9c42-ff9a8b21f51e",
+        "text": "(A - B = ∅) ⇒ (B = ∅)",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "413a1505-5a0c-46e0-9a23-0796b0b5adc7",
+        "text": "(A ⊆ B) ⇒ (A ∪ B = A)",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "e8707709-e7fe-4275-a794-0b73ab398002",
+        "text": "(A ⊆ B) ⇒ (A ∩ B = A)",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "ad90a849-4501-4e79-978b-7f4636a8fc83",
+        "text": "(A ⊆ B) ⇒ (A ∪ B = B)",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "26e8006d-4d11-4238-9df4-56223eeb8864",
+    "type": "input",
+    "text": "Power set of an empty set contains how many elements?",
+    "explanation": "P({∅}) = 1",
+    "correctAnswer": "1"
+  },
+  {
+    "id": "ee2499c9-1e0e-4ba5-8b6c-ae3f2bc24cc1",
+    "type": "multiple-choice",
+    "text": "If R is symmetric and antisymmetric, then [please clarify with me if you get this qn wrong]",
+    "explanation": "",
+    "options": [
+      {
+        "id": "a52248ac-3b63-45b7-952a-9018c90f9658",
+        "text": "It is not possible",
+        "isCorrect": false
+      },
+      {
+        "id": "31c089c9-3427-40c5-a5ac-4b15b6777ec7",
+        "text": "R must be empty",
+        "isCorrect": false
+      },
+      {
+        "id": "5677d10b-ffe6-4ce3-8a11-fbe17bda9c3e",
+        "text": "R has only (a,a) pairs",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "dff2fcdb-4e1a-49a3-830e-85b98c32a9ca",
+        "text": "R must be universal",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "9800e3a4-869b-4ccc-bf7e-8b3f1f05e0bf",
+        "text": "R must be transitive",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "c5eb8ca4-6065-4187-a66f-b3a9f5169871",
+        "text": "R must be reflexive",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "340f0e12-9c43-4326-b9cd-bb2339e90983",
+    "type": "multiple-choice",
+    "text": "Universe: {a,b,c}\nR = {(a,a), (b,b), (c,c), (a,b)}\n",
+    "explanation": "",
+    "options": [
+      {
+        "id": "107eb1ee-42e2-47e1-b9e4-5a7924b1bb97",
+        "text": "Reflexive",
+        "isCorrect": true
+      },
+      {
+        "id": "94d1aba5-1c7f-4bde-ace9-b7a868e9b0c6",
+        "text": "Symmetric",
+        "isCorrect": false
+      },
+      {
+        "id": "7b1cdb28-122c-4614-aa03-da74d81929a6",
+        "text": "Antisymmetric",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "e7dad380-6cbf-4346-9020-1bcc363b574f",
+        "text": "Transitive",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "87166d9e-a85f-4ae3-a0e6-a97bd7043c30",
+    "type": "multiple-choice",
+    "text": "Universe: {a,b,c}\nR = {(a,b), (b,a), (c,c)}\n",
+    "explanation": "",
+    "options": [
+      {
+        "id": "107eb1ee-42e2-47e1-b9e4-5a7924b1bb97",
+        "text": "Reflexive",
+        "isCorrect": false
+      },
+      {
+        "id": "94d1aba5-1c7f-4bde-ace9-b7a868e9b0c6",
+        "text": "Symmetric",
+        "isCorrect": true
+      },
+      {
+        "id": "7b1cdb28-122c-4614-aa03-da74d81929a6",
+        "text": "Antisymmetric",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "e7dad380-6cbf-4346-9020-1bcc363b574f",
+        "text": "Transitive",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "880a4bf2-9a62-4c35-9060-3ee4730eb14d",
+    "type": "multiple-choice",
+    "text": "R = {(a,a) , (b,b) , (c,c) , (a,b) , (b,a) , (b,c) , (c,b)}",
+    "explanation": "",
+    "options": [
+      {
+        "id": "b4cd3c0b-0d70-47ed-80de-409fcf0f3850",
+        "text": "Symmetric",
+        "isCorrect": true
+      },
+      {
+        "id": "2fb83171-177f-4463-9d58-2ff06c3b8da0",
+        "text": "Reflexive",
+        "isCorrect": true
+      },
+      {
+        "id": "6c381f76-6e29-475a-860a-5d769adad16b",
+        "text": "Antisymmetric",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "bf9b9e53-5e93-424c-870d-fb43c11b6a85",
+        "text": "Transitive",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "55cebe6c-2255-4150-bb17-cc07f20623dd",
+    "type": "multiple-choice",
+    "text": "Vacuous proof occurs when:  ",
+    "explanation": "",
+    "options": [
+      {
+        "id": "ec33a98b-011f-42bc-a86f-0b9b427b4779",
+        "text": "The hypothesis is always true",
+        "isCorrect": false
+      },
+      {
+        "id": "e2ea43ac-d0a5-421d-adbb-53232caafe7a",
+        "text": "The conclusion is always true",
+        "isCorrect": false
+      },
+      {
+        "id": "564911b1-d31b-46c7-ac61-8dfe39208387",
+        "text": "The hypothesis is always false",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "acbcce64-5bbd-4d6b-83ec-e769ca95dd67",
+        "text": "The conclusion is always false",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "0307576b-827e-40e0-af8f-612fda41013d",
+    "type": "multiple-choice",
+    "text": "Trivial proof occurs when:",
+    "explanation": "",
+    "options": [
+      {
+        "id": "4a6675ed-f0d0-4151-af2f-7ecca3cb43eb",
+        "text": "Hypothesis is false",
+        "isCorrect": false
+      },
+      {
+        "id": "14a8a77c-00bc-49b6-b9f9-dba669cd1b5c",
+        "text": "Conclusion is true regardless of the hypothesis",
+        "isCorrect": true
+      },
+      {
+        "id": "fd3c469b-c196-4c9e-8144-22cb7207a8ee",
+        "text": "Both hypothesis and conclusion are false",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "ab649131-2f77-488b-8a89-57969f4a5a85",
+        "text": "Both hypothesis and conclusion are true",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "2960c02d-98cb-4029-9a32-8868783ad5bb",
+    "type": "multiple-choice",
+    "text": "To disprove a universal statement, use:",
+    "explanation": "",
+    "options": [
+      {
+        "id": "3d0b8b46-143a-462c-88b1-d132a2d9ac9f",
+        "text": "Direct proof",
+        "isCorrect": false
+      },
+      {
+        "id": "fadf5574-6842-4578-b6af-e1a4d551d608",
+        "text": "Contradiction",
+        "isCorrect": false
+      },
+      {
+        "id": "d60d6067-0463-49f3-bbb5-b549aef91beb",
+        "text": "A single counterexample",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "9ea384c6-c326-4b24-8f64-d74756a883fd",
+        "text": "Case analysis",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "e71b5f60-32f4-41eb-8c9c-d9d550a5db51",
+    "type": "multiple-choice",
+    "text": "To prove “Every prime > 3 is odd”, the proof type is: ",
+    "explanation": "",
+    "options": [
+      {
+        "id": "19fdf804-8676-4383-bc39-8bd698dcdaf4",
+        "text": "Direct Proof",
+        "isCorrect": true
+      },
+      {
+        "id": "bb8ff876-4043-4742-811d-2c163a74bba3",
+        "text": "Counterexample",
+        "isCorrect": false
+      },
+      {
+        "id": "8382ada3-b69b-415b-bee3-0e03d5ffea16",
+        "text": "Contradiction",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "26bee173-cacb-4937-b4d0-da3f367a5afe",
+        "text": "Vacuous",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "b1f0a6e6-b570-4222-ba16-d16a58944083",
+    "type": "multiple-choice",
+    "text": "To prove: “For all integers n, if n^2 is negative, then n is odd.” The best method:",
+    "explanation": "Hypothesis is impossible → vacuous",
+    "options": [
+      {
+        "id": "08fe94de-0a5a-4d69-a3e7-9a1d76c3b3f2",
+        "text": "Contraposition",
+        "isCorrect": false
+      },
+      {
+        "id": "99322ad9-d127-4751-866a-b62e5aa1ad4d",
+        "text": "Direct",
+        "isCorrect": false
+      },
+      {
+        "id": "490e4dae-3df1-4623-94f7-e37c69afa89d",
+        "text": "Vacuous",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "a37bfe88-d729-44e1-a41e-d1b35f1218c0",
+        "text": "Contradiction",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "3dd8dfe4-334e-486a-95ef-5d15825acabd",
+    "type": "multiple-choice",
+    "text": "Which is a valid plan for proof by cases?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "cbb9fb9b-4e00-47d6-b9c1-7ab8b8790cb2",
+        "text": "Break on truth values of p and q",
+        "isCorrect": false
+      },
+      {
+        "id": "4dfad3f6-4589-4a6f-9efb-a60a090e5d41",
+        "text": "Break on smallest even/odd primes",
+        "isCorrect": false
+      },
+      {
+        "id": "3fbd45b2-02a1-40c9-83c3-879b48200a42",
+        "text": "Break on n being positive, negative, or zero",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "21a5489c-3d8f-41b1-8dc4-7675f68fae9e",
+        "text": "Assume conclusion false",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "b0d24cc1-eef2-4b11-a93e-4abaf0f490de",
+    "type": "multiple-choice",
+    "text": "Which proof method is most appropriate for: “If ab is even, then a is even or b is even”?",
+    "explanation": "Contrapositive: if both odd → product odd",
+    "options": [
+      {
+        "id": "a4e1e57c-5b25-4360-8b17-29e983eb52a4",
+        "text": "Direct",
+        "isCorrect": false
+      },
+      {
+        "id": "0442012d-f111-4e32-b682-b02f2b939d3b",
+        "text": "Contraposition",
+        "isCorrect": true
+      },
+      {
+        "id": "fabd40d3-2118-4647-a703-2a777ac3f497",
+        "text": "Case analysis",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "55da9fec-77c8-411f-8b35-e7b6267d6b48",
+        "text": "Trivial",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "b87829a1-2daa-465c-a03e-94694bb7c3eb",
+    "type": "multiple-choice",
+    "text": "Which statement requires case analysis?",
+    "explanation": "Need case x ≥ 0 or x < 0",
+    "options": [
+      {
+        "id": "df1a96af-78ce-48dc-8d51-e41ca7300599",
+        "text": "If n is even, n² is even",
+        "isCorrect": false
+      },
+      {
+        "id": "bd41ede0-c787-49c2-88e2-3af592f55e3e",
+        "text": "All primes > 2 are odd",
+        "isCorrect": false
+      },
+      {
+        "id": "d10307c4-fbdb-41f3-b10d-6b3fb208072d",
+        "text": "|x| ≥ x",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "34507567-9d8b-47b5-be20-ffd3c7fbac3d",
+        "text": "If n is divisible by 4, n is divisible by 2",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "09fb6f73-39d3-4572-beb4-d51b8166dffb",
+    "type": "multiple-choice",
+    "text": "Which statements can be proven vacuously?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "0ae6c69c-abfb-4e98-9681-80d4ee57fc16",
+        "text": "If n² = -1, then n = 5.",
+        "isCorrect": true
+      },
+      {
+        "id": "390228e8-688b-4e15-a493-81010591a04f",
+        "text": "If n is both even and odd, then n = 2.",
+        "isCorrect": true
+      },
+      {
+        "id": "44cced2a-89e3-4035-84f2-cc3fca074b8e",
+        "text": "If n < 0 and n > 5, then n = 10.",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "bc6acebf-6f17-488f-8d3e-b5ba426c10a3",
+        "text": "If n is prime and divisible by 4, then n = 2.",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "b3773fb2-063c-440a-9173-642119e90ec3",
+    "type": "multiple-choice",
+    "text": "Which statements can be proven trivially?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "c992bf4a-195a-4851-99fd-4ade8bd6535f",
+        "text": "If n = 3, then 1 = 1",
+        "isCorrect": true
+      },
+      {
+        "id": "74150a1e-7dd6-4ba2-a448-133169313da6",
+        "text": "If n < 0, then 0 < 1",
+        "isCorrect": true
+      },
+      {
+        "id": "11743cd3-dbd0-4727-b277-6e316c67cc34",
+        "text": "If n is even, then n² ≥ 0",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "349fc54e-c950-4ed5-9d1a-26b9bbb976c7",
+        "text": "If n = 2, then n is even.",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "28461d81-a56a-45b2-9177-4856855b37f8",
+    "type": "multiple-choice",
+    "text": "Which functions f: Z → Z are injective?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "d57f44ef-69f0-40e6-9fa0-75e2c0f68ef1",
+        "text": "f(x) = x²",
+        "isCorrect": false
+      },
+      {
+        "id": "cf139389-938d-4f11-854e-670a924f9e73",
+        "text": "f(x) = 2x + 3",
+        "isCorrect": true
+      },
+      {
+        "id": "8097c6cb-5e5c-4b0e-a86e-c9e97b749b89",
+        "text": "f(x) = x³",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "c9d27f35-7232-4ff6-ab7a-59587318d454",
+        "text": "f(x) = |x|",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "7358287f-5806-48a3-92b8-fd6aadda125f",
+    "type": "multiple-choice",
+    "text": "Which statements about bijections are TRUE?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "e848a34b-9ce1-4e39-8934-412fb5f68371",
+        "text": "If f is bijective, f has an inverse",
+        "isCorrect": true
+      },
+      {
+        "id": "371b4f49-b6af-4844-8c20-a23482ce641e",
+        "text": "If f is injective and surjective, f is bijective",
+        "isCorrect": true
+      },
+      {
+        "id": "b5ac70e9-bfd9-4416-be0b-e406a86e2d7d",
+        "text": "A bijection from A to B implies |A|=|B|",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "3b85febb-756f-4907-8f95-8559349a2aed",
+    "type": "multiple-choice",
+    "text": "Which of the following is/are not transitive relations?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "74321629-b710-4a04-9c91-72e0be6c5419",
+        "text": "is a friend of",
+        "isCorrect": true
+      },
+      {
+        "id": "4c4d7279-7302-47f4-b969-8fadb2f9157d",
+        "text": "is older than",
+        "isCorrect": false
+      },
+      {
+        "id": "c3bd41bf-1f85-4a4c-b689-6b5e69bfe192",
+        "text": "is a subset of",
+        "isCorrect": false,
+        "matchText": ""
+      },
+      {
+        "id": "1db1bf6f-77b0-4306-8b07-85334f78dec4",
+        "text": "is equal to",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "741578d9-f019-430c-897a-10ca16e60ae7",
+    "type": "multiple-choice",
+    "text": "Which of the following is / are equivalence classes under a = b (mod 5)?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "19509ac0-6509-4673-bb87-882aefc5a3e9",
+        "text": "{ ..., -10, -5, 0, 5, 10, ...}",
+        "isCorrect": true
+      },
+      {
+        "id": "c1f43ca7-0bfb-47c7-867e-f5a22e7a0406",
+        "text": "{..., -9, -4, 1, 6, 11, ...}",
+        "isCorrect": true
+      },
+      {
+        "id": "1faaf320-0bc4-4f5a-9758-36b62ac64ffc",
+        "text": "{..., -8, -3, 2, 7, 12, ...}",
+        "isCorrect": true,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "17e20d4e-af0d-4856-8a82-f2decbc1c27a",
+    "type": "multiple-choice",
+    "text": "For an equivalence relation R, which MUST be true?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "175285ff-f26a-4c1f-aa25-ecfbb6609197",
+        "text": "Distinct equivalence classes are disjoint",
+        "isCorrect": true
+      },
+      {
+        "id": "c0b37e7c-42c9-44c6-b74f-1200ed144aaa",
+        "text": "Classes partition the domain",
+        "isCorrect": true
+      },
+      {
+        "id": "950520a4-ab0c-4691-91b4-047c0f410616",
+        "text": "Every element belong to exactly one class",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "1be61aa2-19ca-4c7b-bd4c-6bb17e856802",
+        "text": "Classes may overlap if reflexive",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "95783c61-c49a-42c1-a698-7a4094b10f9b",
+    "type": "multiple-choice",
+    "text": "Let A = {1,2,3,4}. Consider R consisting of classes: {1,2} and {3,4}. Which is TRUE?",
+    "explanation": "",
+    "options": [
+      {
+        "id": "4234ffc5-ce77-43ca-a5b7-2f874b023c17",
+        "text": "R is an equivalence relation",
+        "isCorrect": true
+      },
+      {
+        "id": "50c24a27-0665-4f3a-9a8e-150a1d16a549",
+        "text": "R contains the pairs (1,2) and (2,1).",
+        "isCorrect": true
+      },
+      {
+        "id": "6d49154b-c27d-4361-9fcd-a2918d8a7839",
+        "text": "R contains the pairs (3,3) and (4,4).",
+        "isCorrect": true,
+        "matchText": ""
+      },
+      {
+        "id": "f1deba08-b318-456b-8245-1cf10cc5bce2",
+        "text": "R contains the pair (1,3) and (3,1).",
+        "isCorrect": false,
+        "matchText": ""
+      }
+    ]
+  },
+  {
+    "id": "07f2e76b-4ae0-4c92-9cff-cf8afbc43f92",
+    "type": "input",
+    "text": "a and b leaves the same remainder when divided by 7. How many equivalence classes will there be?",
+    "explanation": "(0-6 mod 7) gives 7 classes",
+    "correctAnswer": "7"
+  }
+];
+
+        // Fisher-Yates Shuffle
+        function shuffle(array) {
+            if (!array) return [];
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // State
+        let currentQuestionIndex = 0;
+        let shuffledQuestions = [];
+        let userAnswers = [];
+        let score = 0;
+        let isAnswered = false;
+        let allowRetry = false;
+
+        // Initialize effects
+        function initEffects() {
+            // Rain
+            const rainContainer = document.getElementById('rain');
+            for (let i = 0; i < 50; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+                drop.style.animationDelay = -Math.random() * 2 + 's';
+                rainContainer.appendChild(drop);
+            }
+
+            // Fish
+            const fishContainer = document.getElementById('fish-container');
+            const fishes = ['🐠', '🐟', '🐡'];
+            for (let i = 0; i < 5; i++) {
+                const fish = document.createElement('div');
+                fish.className = 'fish';
+                fish.textContent = fishes[Math.floor(Math.random() * fishes.length)];
+                fish.style.top = Math.random() * 80 + 10 + '%';
+                fish.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                fish.style.animationDelay = -Math.random() * 15 + 's';
+                fishContainer.appendChild(fish);
+            }
+
+            // Bubbles
+            const bubbleContainer = document.getElementById('bubble-container');
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.width = bubble.style.height = (Math.random() * 20 + 10) + 'px';
+                bubble.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                bubble.style.animationDelay = -Math.random() * 10 + 's';
+                bubbleContainer.appendChild(bubble);
+            }
+        }
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Start Quiz
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            score = 0;
+            isAnswered = false;
+            allowRetry = document.getElementById('allow-retry').checked;
+            allowRetry = document.getElementById('allow-retry').checked;
+            shuffledQuestions = shuffle(QUESTIONS || []);
+            showScreen('quiz-screen');
+            displayQuestion();
+        }
+
+        // Display Question
+        function displayQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            isAnswered = false;
+            
+            document.getElementById('question-counter').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
+
+            const container = document.getElementById('question-container');
+            let html = `
+                <div class="question-card">
+                    <div class="question-type">${question.type.replace('-', ' ')}</div>
+                    <div class="question-text">${question.text}</div>
+            `;
+
+            const options = question.options || [];
+
+            if (question.type === 'single-choice' || question.type === 'multiple-choice') {
+                const shuffledOptions = shuffle(options);
+                if (question.type === 'single-choice') {
+                    html += '<div class="options">';
+                    shuffledOptions.forEach((opt, idx) => {
+                        html += `<div class="option" onclick="selectOption(${idx})" id="option-${idx}" data-option-id="${opt.id}">${opt.text}</div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div class="checkbox-group">';
+                    shuffledOptions.forEach((opt, idx) => {
+                        // Escape HTML to prevent issues - use fallback ID if missing
+                        const optId = opt.id || `generated-id-${idx}`;
+                        const optText = opt.text || '';
+                        console.log('Checkbox option:', { idx, optId, optText, rawOpt: opt });
+                        html += `
+                            <label class="checkbox-option" data-option-id="${optId}">
+                                <input type="checkbox" id="checkbox-${idx}" value="${optId}" name="multi-choice">
+                                <span>${optText}</span>
+                            </label>
+                        `;
+                    });
+                    html += '</div>';
+                }
+            } else if (question.type === 'true-false') {
+                html += `
+                    <div class="options">
+                        <div class="option" onclick="selectOption(0)" id="option-0">True</div>
+                        <div class="option" onclick="selectOption(1)" id="option-1">False</div>
+                    </div>
+                `;
+            } else if (question.type === 'input') {
+                html += `<input type="text" id="user-input" placeholder="Type your answer...">`;
+            } else if (question.type === 'range') {
+                const min = question.rangeConfig?.min || 0;
+                const max = question.rangeConfig?.max || 100;
+                const step = question.rangeConfig?.step || 1;
+                let mid = Math.floor((min + max) / 2);
+                // Ensure mid is not the correct answer (to prevent giving away the answer)
+                const correctAns = Number(question.correctAnswer);
+                if (mid === correctAns) {
+                    // Shift mid away from correct answer
+                    mid = min;
+                }
+                html += `
+                    <div class="range-value" id="range-value">${mid}</div>
+                    <input type="range" id="range-input" min="${min}" max="${max}" value="${mid}" step="${step}"
+                           oninput="document.getElementById('range-value').textContent = this.value">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px;">
+                        <span>${min}</span>
+                        <span>${max}</span>
+                    </div>
+                `;
+            } else if (question.type === 'matching') {
+                const shuffledMatches = shuffle(options.map(o => o.matchText));
+                html += '<div class="match-container">';
+                options.forEach((opt, idx) => {
+                    html += `
+                        <div class="match-item" id="match-item-${idx}">
+                            <div class="match-text">${opt.text}</div>
+                            <div class="match-arrow">→</div>
+                            <select id="match-${idx}" class="match-text" data-correct="${opt.matchText}">
+                                <option value="">Select match...</option>
+                                ${shuffledMatches.map(m => `<option value="${m}">${m}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else if (question.type === 'ordering') {
+                const shuffledOptions = shuffle(options);
+                // Create array of sequential positions and shuffle them for default values
+                const defaultPositions = options.map((_, i) => i + 1);
+                const shuffledDefaults = shuffle([...defaultPositions]);
+                html += '<div class="ordering-container">';
+                shuffledOptions.forEach((opt, idx) => {
+                    html += `
+                        <div class="ordering-item" id="order-item-${idx}" data-option-text="${opt.text}">
+                            <select id="order-${idx}" class="order-number">
+                                ${options.map((_, i) => `<option value="${i + 1}"${shuffledDefaults[idx] === i + 1 ? ' selected' : ''}>${i + 1}</option>`).join('')}
+                            </select>
+                            <div class="match-text" style="flex: 1">${opt.text}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // Disable all question inputs
+        function disableAllInputs() {
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                opt.style.opacity = '0.6';
+            });
+            document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+                cb.disabled = true;
+                cb.parentElement.style.opacity = '0.6';
+            });
+            document.querySelectorAll('select.order-number, select.match-select').forEach(sel => {
+                sel.disabled = true;
+                sel.style.opacity = '0.6';
+            });
+            const rangeInput = document.getElementById('range-input');
+            if (rangeInput) {
+                rangeInput.disabled = true;
+                rangeInput.style.opacity = '0.6';
+            }
+            const textInput = document.getElementById('user-input');
+            if (textInput) {
+                textInput.disabled = true;
+                textInput.style.opacity = '0.6';
+            }
+        }
+        
+        // Enable all question inputs
+        function enableAllInputs() {
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'auto';
+                opt.style.opacity = '1';
+            });
+            document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+                cb.disabled = false;
+                cb.parentElement.style.opacity = '1';
+            });
+            document.querySelectorAll('select.order-number, select.match-select').forEach(sel => {
+                sel.disabled = false;
+                sel.style.opacity = '1';
+            });
+            const rangeInput = document.getElementById('range-input');
+            if (rangeInput) {
+                rangeInput.disabled = false;
+                rangeInput.style.opacity = '1';
+            }
+            const textInput = document.getElementById('user-input');
+            if (textInput) {
+                textInput.disabled = false;
+                textInput.style.opacity = '1';
+            }
+        }
+
+        // Select Option (for single choice and true-false)
+        function selectOption(index) {
+            if (isAnswered) return;
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById(`option-${index}`).classList.add('selected');
+        }
+
+        // Submit Answer
+        function submitAnswer() {
+            if (isAnswered) {
+                nextQuestion();
+                return;
+            }
+
+            const question = shuffledQuestions[currentQuestionIndex];
+            const options = question.options || [];
+            let userAnswer;
+            let isCorrect = false;
+
+            if (question.type === 'single-choice') {
+                const selected = document.querySelector('.option.selected');
+                if (!selected) {
+                    alert('Please select an answer');
+                    return;
+                }
+                const selectedOptionId = selected.getAttribute('data-option-id');
+                userAnswer = selectedOptionId;
+                const correctOption = options.find(o => o.id === selectedOptionId);
+                isCorrect = correctOption && correctOption.isCorrect;
+            } else if (question.type === 'multiple-choice') {
+                const checked = Array.from(document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked'));
+                if (checked.length === 0) {
+                    alert('Please select at least one answer');
+                    return;
+                }
+                userAnswer = checked.map(c => c.value);
+                const correctIds = options.filter(o => o.isCorrect).map(o => o.id);
+                // Sort copies for comparison without modifying originals
+                const sortedUserAnswer = [...userAnswer].sort();
+                const sortedCorrectIds = [...correctIds].sort();
+                isCorrect = sortedUserAnswer.length === sortedCorrectIds.length && 
+                           sortedUserAnswer.every((v, i) => v === sortedCorrectIds[i]);
+                console.log('Multiple-choice validation:', {
+                    userAnswer,
+                    correctIds,
+                    sortedUserAnswer,
+                    sortedCorrectIds,
+                    isCorrect,
+                    lengthMatch: sortedUserAnswer.length === sortedCorrectIds.length
+                });
+            } else if (question.type === 'true-false') {
+                const selected = document.querySelector('.option.selected');
+                if (!selected) {
+                    alert('Please select an answer');
+                    return;
+                }
+                userAnswer = selected.textContent.trim().toLowerCase();
+                isCorrect = userAnswer === String(question.correctAnswer).toLowerCase();
+            } else if (question.type === 'input') {
+                userAnswer = document.getElementById('user-input').value.trim();
+                if (!userAnswer) {
+                    alert('Please enter an answer');
+                    return;
+                }
+                isCorrect = userAnswer.toLowerCase() === String(question.correctAnswer).toLowerCase();
+            } else if (question.type === 'range') {
+                const rangeInput = document.getElementById('range-input');
+                userAnswer = parseInt(rangeInput.value);
+                const tolerance = question.rangeConfig?.tolerance || 0;
+                const correctAns = Number(question.correctAnswer);
+                const difference = Math.abs(userAnswer - correctAns);
+                isCorrect = difference <= tolerance;
+                console.log('Range validation:', {
+                    userAnswer,
+                    correctAns,
+                    tolerance,
+                    difference,
+                    isCorrect,
+                    rangeConfig: question.rangeConfig
+                });
+                console.log('Range check:', { userAnswer, correctAns, tolerance, difference, isCorrect });
+            } else if (question.type === 'matching') {
+                userAnswer = {};
+                let allSelected = true;
+                options.forEach((opt, idx) => {
+                    const selected = document.getElementById(`match-${idx}`).value;
+                    if (!selected) allSelected = false;
+                    userAnswer[opt.text] = selected;
+                });
+                if (!allSelected) {
+                    alert('Please match all items');
+                    return;
+                }
+                isCorrect = options.every(opt => userAnswer[opt.text] === opt.matchText);
+            } else if (question.type === 'ordering') {
+                userAnswer = [];
+                const orderSelects = document.querySelectorAll('select.order-number');
+                const orderMap = {};
+                orderSelects.forEach((select) => {
+                    const order = parseInt(select.value);
+                    const orderItem = select.closest('.ordering-item');
+                    const text = orderItem ? orderItem.getAttribute('data-option-text') : null;
+                    if (text) {
+                        orderMap[order] = text;
+                    }
+                });
+                // Build ordered array from the map
+                for (let i = 1; i <= options.length; i++) {
+                    if (orderMap[i]) {
+                        userAnswer.push(orderMap[i]);
+                    }
+                }
+                const correctOrder = options.map(o => o.text);
+                isCorrect = userAnswer.length === correctOrder.length && userAnswer.every((t, i) => t === correctOrder[i]);
+            }
+
+            isAnswered = true;
+            userAnswers.push({ question: question.id, answer: userAnswer, correct: isCorrect });
+            if (isCorrect) score++;
+
+            // Trigger confetti on correct answer
+            if (isCorrect && typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Disable all inputs after submission
+            disableAllInputs();
+            
+            // Update button text based on retry settings
+            const submitBtn = document.getElementById('submit-btn');
+            if (!isCorrect && allowRetry) {
+                submitBtn.textContent = 'Retry Question';
+            } else {
+                submitBtn.textContent = currentQuestionIndex < shuffledQuestions.length - 1 ? 'Next Question' : 'View Results';
+            }
+
+            // Show feedback banner
+            const banner = document.createElement('div');
+            banner.className = `feedback-banner ${isCorrect ? 'correct' : 'incorrect'}`;
+            banner.textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+            document.body.appendChild(banner);
+            setTimeout(() => banner.remove(), 2000);
+
+            // Show feedback on options (only if retry is disabled or answer is correct)
+            const showCorrectAnswers = !allowRetry || isCorrect;
+            
+            if (showCorrectAnswers && (question.type === 'single-choice' || question.type === 'true-false')) {
+                document.querySelectorAll('.option').forEach((opt) => {
+                    if (question.type === 'single-choice') {
+                        const optId = opt.getAttribute('data-option-id');
+                        const option = options.find(o => o.id === optId);
+                        if (option && option.isCorrect) {
+                            opt.classList.add('correct');
+                        }
+                    } else if (question.type === 'true-false' && 
+                              opt.textContent.trim().toLowerCase() === String(question.correctAnswer).toLowerCase()) {
+                        opt.classList.add('correct');
+                    }
+                    if (opt.classList.contains('selected') && !isCorrect) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            } else if (showCorrectAnswers && question.type === 'multiple-choice') {
+                // Disable all checkboxes
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.disabled = true;
+                });
+                // Show correct answers
+                document.querySelectorAll('.checkbox-option').forEach((opt) => {
+                    const checkbox = opt.querySelector('input[type="checkbox"]');
+                    const optionId = checkbox.value;
+                    const option = options.find(o => o.id === optionId);
+                    if (option && option.isCorrect) {
+                        opt.classList.add('correct');
+                    }
+                    if (checkbox.checked && option && !option.isCorrect) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            } else if (showCorrectAnswers && question.type === 'range') {
+                // Hide the entire slider container to avoid confusion
+                const rangeInput = document.getElementById('range-input');
+                const rangeValue = document.getElementById('range-value');
+                if (rangeInput && rangeInput.nextElementSibling) {
+                    // Hide the slider
+                    rangeInput.style.display = 'none';
+                    // Hide the min/max labels (next sibling div)
+                    rangeInput.nextElementSibling.style.display = 'none';
+                }
+                if (rangeValue) {
+                    rangeValue.style.display = 'none';
+                }
+                // Show correct answer with appropriate styling
+                const container = document.getElementById('question-container');
+                const tolerance = question.rangeConfig?.tolerance || 0;
+                const answerClass = isCorrect ? 'range-answer correct' : 'range-answer incorrect';
+                const answerHtml = `<div class="${answerClass}">Your answer: ${userAnswer}<br>Correct Answer: ${question.correctAnswer}${tolerance ? ` (±${tolerance})` : ''}</div>`;
+                container.innerHTML += answerHtml;
+            } else if (showCorrectAnswers && question.type === 'matching') {
+                // Disable all selects and show feedback
+                options.forEach((opt, idx) => {
+                    const select = document.getElementById(`match-${idx}`);
+                    select.disabled = true;
+                    const matchItem = document.getElementById(`match-item-${idx}`);
+                    const selectedValue = select.value;
+                    if (selectedValue === opt.matchText) {
+                        select.classList.add('correct-match');
+                    } else {
+                        select.classList.add('incorrect-match');
+                        // Show correct answer
+                        const correctSpan = document.createElement('div');
+                        correctSpan.className = 'match-text correct-match';
+                        correctSpan.textContent = `✓ ${opt.matchText}`;
+                        correctSpan.style.gridColumn = '3';
+                        correctSpan.style.marginTop = '5px';
+                        matchItem.parentElement.insertBefore(correctSpan, matchItem.nextSibling);
+                    }
+                });
+            } else if (showCorrectAnswers && question.type === 'ordering') {
+                // Disable all selects and show feedback
+                const correctOrder = options.map(o => o.text);
+                const orderSelects = document.querySelectorAll('select.order-number');
+                
+                console.log('Ordering feedback:', { correctOrder, selectCount: orderSelects.length });
+                
+                orderSelects.forEach((select, idx) => {
+                    select.disabled = true;
+                    select.style.pointerEvents = 'none';
+                    const orderItem = select.closest('.ordering-item');
+                    
+                    if (!orderItem) {
+                        console.error('No order item found for idx:', idx);
+                        return;
+                    }
+                    
+                    const text = orderItem.getAttribute('data-option-text');
+                    const userSelectedOrder = parseInt(select.value);
+                    
+                    if (!text) {
+                        console.error('No text found for order item:', idx, orderItem);
+                        return;
+                    }
+                    
+                    // Find correct position of this text in the original order
+                    // Trim whitespace to avoid matching issues
+                    const trimmedText = text.trim();
+                    let correctPosition = -1;
+                    for (let i = 0; i < correctOrder.length; i++) {
+                        if (correctOrder[i] && correctOrder[i].trim() === trimmedText) {
+                            correctPosition = i + 1; // Convert to 1-based
+                            break;
+                        }
+                    }
+                    
+                    console.log('Item check:', { text: trimmedText, userPos: userSelectedOrder, correctPos: correctPosition, match: userSelectedOrder === correctPosition });
+                    
+                    if (correctPosition === -1) {
+                        console.error('Could not find correct position for:', text);
+                        correctPosition = 1; // Fallback
+                    }
+                    
+                    if (userSelectedOrder === correctPosition) {
+                        orderItem.classList.add('correct-order');
+                        // Show checkmark for correct items
+                        const correctLabel = document.createElement('span');
+                        correctLabel.textContent = ' ✓';
+                        correctLabel.style.color = '#22c55e';
+                        correctLabel.style.fontSize = '18px';
+                        correctLabel.style.marginLeft = '10px';
+                        correctLabel.style.fontWeight = 'bold';
+                        orderItem.appendChild(correctLabel);
+                    } else {
+                        orderItem.classList.add('incorrect-order');
+                        // Show correct order
+                        const correctLabel = document.createElement('span');
+                        correctLabel.textContent = ` (Should be position: ${correctPosition})`;
+                        correctLabel.style.color = '#22c55e';
+                        correctLabel.style.fontSize = '14px';
+                        correctLabel.style.marginLeft = '10px';
+                        orderItem.appendChild(correctLabel);
+                    }
+                });
+            }
+
+            // Show explanation if exists
+            if (question.explanation) {
+                const container = document.getElementById('question-container');
+                container.innerHTML += `<div class="explanation"><strong>Explanation:</strong> ${question.explanation}</div>`;
+            }
+        }
+
+        // Next Question
+        function nextQuestion() {
+            // If retry is enabled and user got it wrong, stay on same question
+            if (allowRetry && userAnswers.length > 0 && !userAnswers[userAnswers.length - 1].correct) {
+                // Remove the wrong answer from history to allow retry
+                userAnswers.pop();
+                score = Math.max(0, score);
+                isAnswered = false;
+                displayQuestion();
+                enableAllInputs(); // Enable inputs for retry
+                document.getElementById('submit-btn').textContent = 'Submit Answer';
+                return;
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                displayQuestion();
+                document.getElementById('submit-btn').textContent = 'Submit Answer';
+            } else {
+                showResults();
+            }
+        }
+
+        // Show Results
+        function showResults() {
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            document.getElementById('score-percentage').textContent = percentage + '%';
+            document.getElementById('correct-count').textContent = score;
+            document.getElementById('incorrect-count').textContent = shuffledQuestions.length - score;
+            showScreen('results-screen');
+        }
+
+        // Restart Quiz
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        // Show Review
+        function showReview() {
+            const container = document.getElementById('review-container');
+            let html = '';
+
+            shuffledQuestions.forEach((question, idx) => {
+                const userAnswer = userAnswers[idx];
+                const isCorrect = userAnswer ? userAnswer.correct : false;
+                const statusColor = isCorrect ? '#22c55e' : '#ef4444';
+                const statusIcon = isCorrect ? '✓' : '✗';
+
+                html += `
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 4px solid ${statusColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <h3 style="margin: 0; font-size: 16px;">Question ${idx + 1}</h3>
+                            <span style="color: ${statusColor}; font-size: 20px; font-weight: bold;">${statusIcon}</span>
+                        </div>
+                        <p style="font-size: 15px; margin: 10px 0;">${question.text}</p>
+                `;
+
+                const options = question.options || [];
+
+                // Display answer based on question type
+                if (question.type === 'single-choice' || question.type === 'multiple-choice' || question.type === 'true-false') {
+                    const correctOptions = options.filter(o => o.isCorrect).map(o => o.text);
+                    const userSelectedIds = Array.isArray(userAnswer?.answer) ? userAnswer.answer : [userAnswer?.answer];
+                    const userSelected = options.filter(o => userSelectedIds.includes(o.id)).map(o => o.text);
+                    
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your answer:</strong> ${userSelected.join(', ') || 'Not answered'}</div>
+                            <div style="color: #22c55e;"><strong>Correct answer:</strong> ${correctOptions.join(', ')}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'input') {
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your answer:</strong> ${userAnswer?.answer || 'Not answered'}</div>
+                            <div style="color: #22c55e;"><strong>Correct answer:</strong> ${question.correctAnswer}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'range') {
+                    const tolerance = question.rangeConfig?.tolerance || 0;
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your answer:</strong> ${userAnswer?.answer || 'Not answered'}</div>
+                            <div style="color: #22c55e;"><strong>Correct answer:</strong> ${question.correctAnswer}${tolerance ? ` (±${tolerance})` : ''}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'ordering') {
+                    const correctOrder = options.map(o => o.text).join(' → ');
+                    const userOrder = userAnswer?.answer ? userAnswer.answer.join(' → ') : 'Not answered';
+                    html += `
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <div><strong>Your order:</strong> ${userOrder}</div>
+                            <div style="color: #22c55e;"><strong>Correct order:</strong> ${correctOrder}</div>
+                        </div>
+                    `;
+                } else if (question.type === 'matching') {
+                    html += `<div style="margin-top: 10px; font-size: 14px;">`;
+                    options.forEach(opt => {
+                        const userMatch = userAnswer?.answer ? userAnswer.answer[opt.text] : 'Not answered';
+                        const isMatchCorrect = userMatch === opt.matchText;
+                        html += `
+                            <div style="margin: 5px 0;">
+                                <strong>${opt.text}:</strong> ${userMatch}
+                                ${!isMatchCorrect ? `<span style="color: #22c55e;"> (Correct: ${opt.matchText})</span>` : ''}
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                if (question.explanation) {
+                    html += `
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(59,130,246,0.1); border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 13px;">
+                            <strong>Explanation:</strong> ${question.explanation}
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+            showScreen('review-screen');
+        }
+
+
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initEffects();
+            
+            // Register service worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => self.clients.claim());
+                `));
+            }
+        });
+    </script>
+</body>
+</html>
